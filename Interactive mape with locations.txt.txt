@@ -1,0 +1,96 @@
+Interactive Map with Locations.Java Script:
+
+Code:
+
+html:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Map with Locations</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        .info-box {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Map with Locations</h1>
+    <div id="map"></div>
+    <div class="info-box">
+        <h3>Location Information:</h3>
+        <p id="location-name">Click on the map to add a location.</p>
+        <p id="location-description"></p>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+
+Create a file:
+
+// Initialize the map
+const map = L.map('map').setView([51.505, -0.09], 2); // Default center is set to (latitude, longitude)
+
+// Add OpenStreetMap tile layer to the map
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+// Function to handle the click event and add a marker
+function onMapClick(e) {
+    const lat = e.latlng.lat;
+    const lon = e.latlng.lng;
+
+    // Add a marker to the clicked location
+    const marker = L.marker([lat, lon]).addTo(map);
+
+    // Popup for the marker
+    marker.bindPopup(`<b>New Location</b><br>Latitude: ${lat}<br>Longitude: ${lon}`).openPopup();
+
+    // Display location info on the right sidebar
+    document.getElementById('location-name').textContent = `Latitude: ${lat}, Longitude: ${lon}`;
+    document.getElementById('location-description').textContent = "You can add a description here.";
+
+    // Save the marker location in Local Storage (optional)
+    saveLocation(lat, lon);
+}
+
+// Listen for map click event
+map.on('click', onMapClick);
+
+// Function to save the location in Local Storage (optional)
+function saveLocation(lat, lon) {
+    let locations = JSON.parse(localStorage.getItem('locations')) || [];
+    locations.push({ lat, lon });
+    localStorage.setItem('locations', JSON.stringify(locations));
+}
+
+// Function to load saved locations from Local Storage (optional)
+function loadLocations() {
+    let locations = JSON.parse(localStorage.getItem('locations')) || [];
+    locations.forEach(location => {
+        const marker = L.marker([location.lat, location.lon]).addTo(map);
+        marker.bindPopup(`<b>Saved Location</b><br>Latitude: ${location.lat}<br>Longitude: ${location.lon}`).openPopup();
+    });
+}
+
+// Load saved locations when the page loads (optional)
+window.onload = loadLocations;
+
+Optional Enhancements:
+
+const customIcon = L.icon({
+    iconUrl: 'path/to/custom-icon.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32]
+});
+const marker = L.marker([lat, lon], { icon: customIcon }).addTo(map);
+
